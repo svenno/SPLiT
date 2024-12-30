@@ -29,12 +29,25 @@ SPLiT is developed with hackability in mind, the main target is to reproduce SIP
 
 ## Testing
 
-To run the test suite:
+SPLiT has two types of tests:
+
+1. Unit tests - Testing individual components
+2. Directory tests - Integration tests in numbered directories
+
+To run all tests:
 
 ```bash
 cd tests
 python run_tests.py
 ```
+
+### Directory Tests
+
+Each numbered test directory (e.g. test_001) contains:
+- `run.sh` - Test script
+- `input/` - Test input files
+- `output/` - Test results
+- `expected/` - Expected results
 
 ## Usage
 
