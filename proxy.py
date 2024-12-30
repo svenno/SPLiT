@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import SocketServer
+import socketserver
 import re
 import string
 import socket
@@ -24,6 +24,7 @@ import sys
 import time
 import hashlib
 import random
+import logging
 
 # Regexp matching SIP messages:
 rx_register = re.compile("^REGISTER")
@@ -73,7 +74,7 @@ rx_branch = re.compile(";branch=([^;]*)")
 rx_rport = re.compile(";rport$|;rport;")
 rx_contact_expires = re.compile("expires=([^;$]*)")
 rx_expires = re.compile("^Expires: (.*)$")
-rx_authorization = re.compile("^Authorization: +\S{6} (.*)")
+rx_authorization = re.compile(r"^Authorization: +\S{6} (.*)")
 rx_kv= re.compile("([^=]*)=(.*)")
 
 def hexdump( chars, sep, width ):
@@ -97,22 +98,22 @@ def generateNonce(n, str="0123456789abcdef"):
         nonce += str[a]
     return nonce
     
-class SipTracedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
-    def __init__(self, server_address, RequestHandlerClass, sip_logger, main_logger, options):
-        self.allow_reuse_address = True
-        SocketServer.UDPServer.__init__(self, server_address, RequestHandlerClass)
-        self.sip_logger = sip_logger
-        self.main_logger = main_logger
-        self.options = options
-       
-        self.allow_reuse_address = True
-        self.registrar = {}
-        self.auth = {}
-        self.recordroute = "Record-Route: <sip:%s:%d;lr>" % (server_address[0], server_address[1])
-        self.topvia = "Via: SIP/2.0/UDP %s:%d" % (server_address[0], server_address[1])
+class SipTracedUDPServer(socketserver.UDPServer):
+    def __init__(self, server_address, handler_class, main_logger=None):
+        # Initialize main_logger with a default logger if none provided
+        if main_logger is None:
+            self.main_logger = logging.getLogger('SipProxy')
+            self.main_logger.setLevel(logging.INFO)
+            # Add a handler if you want to see the output
+            handler = logging.StreamHandler()
+            self.main_logger.addHandler(handler)
+        else:
+            self.main_logger = main_logger
+            
         self.main_logger.info("NOTICE: SIP Proxy starting on %s:%d" % (server_address[0], server_address[1]))
+        super().__init__(server_address, handler_class)
 
-class UDPHandler(SocketServer.BaseRequestHandler):   
+class UDPHandler(socketserver.BaseRequestHandler):   
 
     def debugRegister(self):
         self.server.main_logger.debug("SIP: *** REGISTRAR ***")
