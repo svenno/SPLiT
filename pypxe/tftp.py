@@ -44,7 +44,7 @@ class Client:
         '''Called when there is something to be read on our socket.'''
         try:
             self.message = self.sock.recv(1024)
-        except Exception, e:
+        except Exception as e:
             self.logger.warning("Error during client recv")
         self.handle()
 
@@ -270,7 +270,7 @@ class TFTPD:
             map(self.ongoing.remove, [client for client in self.ongoing if client.dead])
             try:
                 rlist, _, _ = select.select([self.sock] + [client.sock for client in self.ongoing if not client.dead], [], [], 0)
-            except Exception, e:
+            except Exception as e:
                 self.logger.error("Error during select()")
                 break
             if self.running:

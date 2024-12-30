@@ -20,7 +20,7 @@ SPLiT is developed with hackability in mind, the main target is to reproduce SIP
 
 ## Installation
 
-- You need the **Python 2.7** (Python 3 isn't supported yet) interpreter already installed, you can find on the Python [website](http://www.python.org)
+- Python 3.x is supported
 - Download the last release archive file from [https://github.com/pbertera/SPLiT/releases](https://github.com/pbertera/SPLiT/releases) and save in your computer
 - Run the script from a terminal (or a cmd.exe prompt in Windows)
 
@@ -118,6 +118,6 @@ This tool is designed for training and debugging purpose only, HTTP and TFTP ser
 ## TODO
 
 - [x] PnP server
-- [ ]  Embed a syslog server
-- [ ]  Ability send arbitrary SIP messages to the peers (check-sync, MESSAGE, etc..)
-- [ ]  Python 3 support
+- [x] Python 3 support 
+- [ ] Embed a syslog server
+- [ ] Ability send arbitrary SIP messages to the peers (check-sync, MESSAGE, etc..)

@@ -14,7 +14,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import struct
-import SocketServer
+import socketserver as SocketServer
 import re
 import socket
 import sys
@@ -106,7 +106,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         
             self.server.main_logger.debug("PnP: Succesfully sent %d bytes" % sent)
             return True
-        except Exception, e:
+        except Exception as e:
             self.server.main_logger.error("PnP: Error sending data: %s" % e)
             return False
 
@@ -128,7 +128,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
                     new_phone.model = l_model_info[3].split('=')[1][1:-1]
                     new_phone.fw_version = l_model_info[4].split('=')[1][1:-1]
             return new_phone
-        except Exception, e:
+        except Exception as e:
             self.main_logger("PnP: malformed request, cannot parse")
             return None    
 
