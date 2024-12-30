@@ -1,5 +1,5 @@
 import unittest
-from http import HTTPD
+from httpserver import HTTPD
 
 class TestHTTP(unittest.TestCase):
     def setUp(self):

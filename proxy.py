@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import SocketServer
+import socketserver
 import re
 import string
 import socket
@@ -24,6 +24,7 @@ import sys
 import time
 import hashlib
 import random
+import logging
 
 # Regexp matching SIP messages:
 rx_register = re.compile("^REGISTER")
@@ -74,8 +75,8 @@ rx_branch = re.compile(";branch=([^;]*)")
 rx_rport = re.compile(";rport$|;rport;")
 rx_contact_expires = re.compile("expires=([^;$]*)")
 rx_expires = re.compile("^Expires: (.*)$")
-rx_authorization = re.compile("^Authorization: +\S{6} (.*)")
-rx_proxy_authorization = re.compile("^Proxy-Authorization: +\S{6} (.*)")
+rx_authorization = re.compile(r"^Authorization: +\S{6} (.*)")
+rx_proxy_authorization = re.compile(r"^Proxy-Authorization: +\S{6} (.*)")
 rx_kv= re.compile("([^=]*)=(.*)")
 
 local_tag = '123456-SPLiT'
@@ -101,10 +102,10 @@ def generateNonce(n, str="0123456789abcdef"):
         nonce += str[a]
     return nonce
     
-class SipTracedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
+class SipTracedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
     def __init__(self, server_address, RequestHandlerClass, sip_logger, main_logger, options):
         self.allow_reuse_address = True
-        SocketServer.UDPServer.__init__(self, server_address, RequestHandlerClass)
+        socketserver.UDPServer.__init__(self, server_address, RequestHandlerClass)
         self.sip_logger = sip_logger
         self.main_logger = main_logger
         self.options = options
@@ -126,7 +127,7 @@ class SipTracedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
         self.main_logger.info("NOTICE: SIP Proxy starting on %s:%d" % (server_address[0], server_address[1]))
         #self.main_logger.debug("SIP: Config dump: %s" % self.options)
 
-class UDPHandler(SocketServer.BaseRequestHandler):   
+class UDPHandler(socketserver.BaseRequestHandler):   
 
     def debugRegister(self):
         self.server.main_logger.debug("SIP: *** REGISTRAR ***")
