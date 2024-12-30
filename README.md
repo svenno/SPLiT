@@ -1,5 +1,7 @@
 # SPLiT SIP Phone Learning Tool
 
+[![Tests](https://github.com/pbertera/SPLiT/actions/workflows/tests.yml/badge.svg)](https://github.com/pbertera/SPLiT/actions/workflows/tests.yml)
+
 SPLiT is a **very simple**, **not performant**, **insecure**, and **non fully RFC compliant** SIP stateless proxy, DHCP, TFTP and HTTP server.
 
 There are a lot of very good SIP proxies out there, don't try to use SPLiT in a production/working environment.
