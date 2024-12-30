@@ -1,9 +1,6 @@
 # SPLiT SIP Phone Learning Tool
 
-## Status of the project
-
-This project is currently not maintained, works only on Python 2.x which is EOL.
-Adoptions of the project are more than welcome, if you are interested, please contact me.
+[![Tests](https://github.com/pbertera/SPLiT/actions/workflows/tests.yml/badge.svg)](https://github.com/pbertera/SPLiT/actions/workflows/tests.yml)
 
 SPLiT is a **very simple**, **not performant**, **insecure**, and **non fully RFC compliant** SIP stateless proxy, DHCP, TFTP and HTTP server.
 
