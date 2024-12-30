@@ -133,6 +133,7 @@ if __name__ == "__main__":
 
     if not options.terminal:
         import gui
+        import tkinter as tk
 
         root = tk.Tk()
         app = gui.MainApplication(root, options, main_logger)
@@ -147,7 +148,7 @@ if __name__ == "__main__":
             sip_proxy = proxy.SipTracedUDPServer((options.ip_address, options.sip_port), proxy.UDPHandler, sip_logger, main_logger, options)
             sip_proxy_thread = threading.Thread(name='sip', target=sip_proxy.serve_forever)
             sip_proxy_thread.daemon = True
-        except Exception, e:
+        except Exception as e:
             main_logger.error("SIP: Cannot start the proxy: %s" % e)
             raise e
         try:

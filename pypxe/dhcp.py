@@ -9,6 +9,7 @@ import pickle
 import logging
 from collections import defaultdict
 from time import time
+from socket import error
 
 def default_lease():
     return {'ip': '', 'expire': 0}
@@ -116,9 +117,9 @@ class DHCPD:
                     for k,v in self.leases.iteritems():
                         self.logger.info("Imported leases:")
                         self.logger.info("\t%s - %s" % (self.printMAC(k), v))
-                except Exception, e:
+                except Exception as e:
                     self.logger.error("Cannot read leses file: %s" % e)
-            except Exception, e:
+            except Exception as e:
                 self.logger.error("Cannot load the leases file: %s" % self.leases_file)
                 self.leases = defaultdict(default_lease)
         else:
@@ -149,10 +150,10 @@ class DHCPD:
                 if self.leases[i]['expire'] > time()]
         
         #convert to 32bit int
-        leased = map(encode, leased)
+        leased = list(map(encode, leased))
         
         #loop through, make sure not already leased and not in form X.Y.Z.0
-        for offset in xrange(tohost - fromhost):
+        for offset in range(tohost - fromhost):
             if (fromhost + offset) % 256 and fromhost + offset not in leased:
                 return decode(fromhost + offset)
 
@@ -276,7 +277,7 @@ class DHCPD:
         #self.logger.debug('  <--BEGIN RESPONSE-->\n\t{response}\n\t<--END RESPONSE-->'.format(response = repr(response)))
         try:
             self.sock.sendto(response, (self.broadcast, 68))
-        except Exception, e:
+        except Exception as e:
             self.logger.error("DHCP: error sending Offer: %s" % e)
 
     def dhcpAck(self, message):
@@ -313,11 +314,11 @@ class DHCPD:
                 break
             try:
                 message, address = self.sock.recvfrom(1024)
-            except Exception, e:
+            except error as e:
                 continue
             try:
                 clientmac = struct.unpack('!28x6s', message[:34])
-            except struct.error, e:
+            except struct.error as e:
                 self.logger.debug("Error parsing client mac")
                 continue
             self.logger.debug('Received message')

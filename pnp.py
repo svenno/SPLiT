@@ -14,7 +14,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import struct
-import SocketServer
+import socketserver as SocketServer
 import re
 import socket
 import sys
@@ -114,7 +114,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         
             self.server.main_logger.debug("PnP: Succesfully sent %d bytes" % sent)
             return True
-        except Exception, e:
+        except Exception as e:
             self.server.main_logger.error("PnP: Error sending data: %s" % e)
             return False
 
@@ -151,9 +151,8 @@ class UDPHandler(SocketServer.BaseRequestHandler):
                         else:
                             self.server.main_logger.warning("PnP: found Nothing in Contact, using the URI: %s" % new_phone.uri)
             return new_phone
-        except Exception, e:
-            self.server.main_logger.error("PnP: malformed request, cannot parse")
-            print e
+        except Exception as e:
+            self.main_logger("PnP: malformed request, cannot parse")
             return None    
 
     def get_sip_info(self):

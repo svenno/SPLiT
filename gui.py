@@ -14,13 +14,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import Queue
+import queue as Queue
 import logging
 import time
 import threading
-import Tkinter as tk
-import ttk
-from ScrolledText import ScrolledText
+import tkinter as tk
+from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 
 import utils
 import proxy
@@ -288,7 +288,7 @@ class MainFrame:
             self.sip_server_thread.daemon = True
             self.sip_server_thread.start()
             self.sip_control_button.configure(text="Stop SIP Proxy", command=self.stop_sip_proxy)
-        except Exception, e:
+        except Exception as e:
             self.main_logger.error("Cannot start the server: %s" % e)
             raise e
         
@@ -320,7 +320,7 @@ class MainFrame:
             self.tftp_server_thread.daemon = True
             self.tftp_server_thread.start()           
             self.tftp_control_button.configure(text="Stop TFTP Server", command=self.stop_tftp_server)
-        except Exception, e:
+        except Exception as e:
             self.main_logger.error("Cannot start the server: %s", e)
             raise e
 
@@ -357,7 +357,7 @@ class MainFrame:
             self.dhcp_server_thread.daemon = True
             self.dhcp_server_thread.start()
             self.dhcp_control_button.configure(text="Stop DHCP Server", command=self.stop_dhcp_server)
-        except Exception, e:
+        except Exception as e:
             self.main_logger.error("Cannot start the server: %s", e)
             raise e
 
@@ -381,7 +381,7 @@ class MainFrame:
             self.http_server_thread.daemon = True
             self.http_server_thread.start()           
             self.http_control_button.configure(text="Stop HTTP Server", command=self.stop_http_server)
-        except Exception, e:
+        except Exception as e:
             self.main_logger.error("HTTP: Cannot start the server: %s", e)
             raise e
 
@@ -406,7 +406,7 @@ class MainFrame:
             self.pnp_server_thread.daemon = True
             self.pnp_server_thread.start()
             self.pnp_control_button.configure(text="Stop PnP Server", command=self.stop_pnp_server)
-        except Exception, e:
+        except Exception as e:
             self.main_logger.error("Cannot start the server: %s" % e)
             raise e
  
