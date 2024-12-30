@@ -30,6 +30,15 @@ SPLiT is developed with hackability in mind, the main target is to reproduce SIP
 - Download the last release archive file from [https://github.com/pbertera/SPLiT/releases](https://github.com/pbertera/SPLiT/releases) and save in your computer
 - Run the script from a terminal (or a cmd.exe prompt in Windows)
 
+## Testing
+
+To run the test suite:
+
+```bash
+cd tests
+python run_tests.py
+```
+
 ## Usage
 
 In order to run SPLiT you need Python installed, (tested on 2.7.8 only at the moment), you can start the server from command line:
