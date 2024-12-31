@@ -132,7 +132,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
                     new_phone.ip_addr = line[17:].split(';')[0].split(':')[0]
                     try:
                         new_phone.sip_port = line[17:].split(';')[0].split(':')[1]
-                    except Exception, e:
+                    except Exception as e:
                         new_phone.sip_port = "5060"
                 if rx_event.search(line):
                     l_model_info =line.split(';')

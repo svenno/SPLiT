@@ -126,10 +126,10 @@ if __name__ == "__main__":
 
     if not options.terminal:
         try:
-	    import Tkinter as tk
-	except ImportError:
-	    main_logger.error("Tk library not installed, falling back to teminal mode")
-	    options.terminal = True
+            import tkinter as tk
+        except ImportError:
+            main_logger.error("Tk library not installed, falling back to terminal mode")
+            options.terminal = True
 
     if not options.terminal:
         import gui
