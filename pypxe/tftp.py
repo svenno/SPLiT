@@ -88,11 +88,12 @@ class Client:
             Determines if the file exist and if it is a file; if not,
             send an error.
         '''
-        filename = self.netboot_directory + os.sep + self.message.split(chr(0))[0]
+        filename = os.path.join(self.netboot_directory, 
+                              self.message.split(b'\0')[0].decode('utf-8'))
         if os.path.lexists(filename) and os.path.isfile(filename):
             self.filename = filename
             return True
-        self.sendError(1, 'File Not Found', filename = filename)
+        self.sendError(1, 'File Not Found', filename=filename)
         return False
 
     def parse_options(self):
@@ -100,8 +101,11 @@ class Client:
             Extracts the options sent from a client; if any, calculates the last
             block based on the filesize and blocksize.
         '''
-        options = self.message.split(chr(0))[2: -1]
-        options = dict(zip(options[0::2], map(int, options[1::2])))
+        options = self.message.split(b'\0')[2:-1]
+        options = dict(zip(
+            [opt.decode('utf-8') for opt in options[0::2]], 
+            map(int, [opt.decode('utf-8') for opt in options[1::2]])
+        ))
         self.blksize = options.get('blksize', self.blksize)
         self.lastblock = math.ceil(self.filesize / float(self.blksize))
         self.tsize = True if 'tsize' in options else False
@@ -120,12 +124,10 @@ class Client:
         '''Acknowledges any options received.'''
         # only called if options, so send them all
         response = struct.pack("!H", 6)
-
-        response += 'blksize' + chr(0)
-        response += str(self.blksize) + chr(0)
-        response += 'tsize' + chr(0)
-        response += str(self.filesize) + chr(0)
-
+        response += b'blksize\0'
+        response += str(self.blksize).encode('utf-8') + b'\0'
+        response += b'tsize\0'
+        response += str(self.filesize).encode('utf-8') + b'\0'
         self.sock.sendto(response, self.address)
 
     def newRequest(self):

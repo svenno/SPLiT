@@ -278,7 +278,7 @@ class MainFrame:
         self.options.sip_redirect = self.gui_sip_redirect.get()
         self.options.sip_custom_headers = self.gui_sip_custom_headers.get(0.0, tk.END).splitlines()
 
-        self.main_logger.debug("Writing SIP messages in %s log file" % self.options.sip_logfile)
+        self.main_logger.debug(f"Writing SIP messages in {self.options.sip_logfile} log file")
         self.main_logger.debug("Authentication password: %s" % self.options.sip_password)
         self.main_logger.debug("Logfile: %s" % self.options.logfile)
  
@@ -313,7 +313,7 @@ class MainFrame:
         self.options.tftp_port = self.gui_tftp_port.get()
         self.options.tftp_root = self.gui_tftp_root.get()
         
-        self.main_logger.debug("TFTP Server port: %s", self.options.tftp_port)
+        self.main_logger.debug(f"TFTP Server port: {self.options.tftp_port}")
         try:
             self.tftp_server = tftp.TFTPD(ip = self.options.ip_address, port = self.options.tftp_port, mode_debug = self.options.debug, logger = self.main_logger, netboot_directory = self.options.tftp_root)
             self.tftp_server_thread = threading.Thread(name='tftp', target=self.tftp_server.listen)

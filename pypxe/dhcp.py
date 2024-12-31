@@ -91,7 +91,7 @@ class DHCPD:
         if self.dnsserver == '':
             self.logger.warning('DHCP DNS server undefined: DHCP opt.6 will not be sent')
 
-        self.logger.info("NOTICE: DHCP server starting on %s:%d" % (self.ip, self.port))
+        self.logger.info(f"NOTICE: DHCP server starting on {self.ip}:{self.port}")
         self.logger.debug('DHCP server is using the following:')
         self.logger.debug('  DHCP Server IP: {}'.format(self.ip))
         self.logger.debug('  DHCP Server Port: {}'.format(self.port))

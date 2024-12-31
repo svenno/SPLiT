@@ -1,35 +1,28 @@
 '''
-
 This file contains classes and functions that implement the PyPXE HTTP service
-
 '''
 
 import os
 import logging
 import threading
 import posixpath
-import urllib
-
+from urllib.parse import unquote
 from socketserver import ThreadingMixIn
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
 class HTTPDThreadedServer(ThreadingMixIn, HTTPServer):
-
     allow_reuse_address = True
 
     def __init__(self, server_address, RequestHandlerClass, logger, path):
         self.logger = logger
         self.path = path
-        HTTPServer.__init__(self, server_address, RequestHandlerClass)
+        super().__init__(server_address, RequestHandlerClass)
 
     def shutdown(self):
-        #self.socket.close()
         self.logger.info("HTTPD server thread shutdown")
-        HTTPServer.shutdown(self)
-    
+        super().shutdown()
 
 class MySimpleHTTPRequestHandler(SimpleHTTPRequestHandler):
-
     def translate_path(self, path):
         """Translate a /-separated PATH to the local filename syntax.
 
@@ -43,9 +36,9 @@ class MySimpleHTTPRequestHandler(SimpleHTTPRequestHandler):
         path = path.split('#',1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
         trailing_slash = path.rstrip().endswith('/')
-        path = posixpath.normpath(urllib.unquote(path))
+        path = posixpath.normpath(unquote(path))
         words = path.split('/')
-        words = filter(None, words)
+        words = list(filter(None, words))
         path = self.server.path
         for word in words:
             drive, word = os.path.splitdrive(word)
@@ -57,11 +50,10 @@ class MySimpleHTTPRequestHandler(SimpleHTTPRequestHandler):
         return path
 
     def log_message(self, format, *args):
-        self.server.logger.info("%s - - [%s] %s" % (self.client_address[0], self.log_date_time_string(), format%args))
+        self.server.logger.info(f"{self.client_address[0]} - - [{self.log_date_time_string()}] {format%args}")
 
     def log_error(self, format, *args):
-        self.server.logger.error("%s - - [%s] %s" % (self.client_address[0], self.log_date_time_string(), format%args))
-
+        self.server.logger.error(f"{self.client_address[0]} - - [{self.log_date_time_string()}] {format%args}")
 
 class HTTPD():
     def __init__(self, **serverSettings):

@@ -207,5 +207,5 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             main_logger.info("Exiting.")
         
-        while map(lambda x: x.isAlive(), running_services):
+        while any(x.is_alive() for x in running_services):
             time.sleep(1)

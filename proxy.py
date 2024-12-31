@@ -27,73 +27,73 @@ import random
 import logging
 
 # Regexp matching SIP messages:
-rx_register = re.compile("^REGISTER")
-rx_invite = re.compile("^INVITE")
-rx_ack = re.compile("^ACK")
-rx_prack = re.compile("^PRACK")
-rx_cancel = re.compile("^CANCEL")
-rx_bye = re.compile("^BYE")
-rx_options = re.compile("^OPTIONS")
-rx_subscribe = re.compile("^SUBSCRIBE")
-rx_publish = re.compile("^PUBLISH")
-rx_notify = re.compile("^NOTIFY")
-rx_info = re.compile("^INFO")
-rx_message = re.compile("^MESSAGE")
-rx_refer = re.compile("^REFER")
-rx_update = re.compile("^UPDATE")
-rx_from = re.compile("^From:")
-rx_cfrom = re.compile("^f:")
-rx_to = re.compile("^To:")
-rx_cto = re.compile("^t:")
-rx_tag = re.compile(";tag=(.*)")
-rx_contact = re.compile("^Contact:")
-rx_ccontact = re.compile("^m:")
+rx_register = re.compile(r"^REGISTER")
+rx_invite = re.compile(r"^INVITE")
+rx_ack = re.compile(r"^ACK")
+rx_prack = re.compile(r"^PRACK")
+rx_cancel = re.compile(r"^CANCEL")
+rx_bye = re.compile(r"^BYE")
+rx_options = re.compile(r"^OPTIONS")
+rx_subscribe = re.compile(r"^SUBSCRIBE")
+rx_publish = re.compile(r"^PUBLISH")
+rx_notify = re.compile(r"^NOTIFY")
+rx_info = re.compile(r"^INFO")
+rx_message = re.compile(r"^MESSAGE")
+rx_refer = re.compile(r"^REFER")
+rx_update = re.compile(r"^UPDATE")
+rx_from = re.compile(r"^From:")
+rx_cfrom = re.compile(r"^f:")
+rx_to = re.compile(r"^To:")
+rx_cto = re.compile(r"^t:")
+rx_tag = re.compile(r"tag=([^;]*)")
+rx_contact = re.compile(r"^Contact:")
+rx_ccontact = re.compile(r"^m:")
 rx_useragent = re.compile("^User-Agent:")
 rx_contentdisposition = re.compile("^Content-Disposition:")
 rx_supported = re.compile("^Supported:")
 rx_sessionexpires = re.compile("^Session-Expires:")
 rx_maxforward = re.compile("^Max-Forwards:")
 rx_uri_with_params = re.compile("sip:([^@]*)@([^;>$]*)")
-rx_uri = re.compile("sip:([^@]*)@([^>$]*)")
-rx_addr = re.compile("sip:([^ ;>$]*)")
+rx_uri = re.compile(r"sip:([^@]*)@([^;>]*)")
+rx_addr = re.compile(r"sip:([^@]*)@([^;>]*)")
 #rx_addrport = re.compile("([^:]*):(.*)")
-rx_code = re.compile("^SIP/2.0 ([^ ]*)")
+rx_code = re.compile(r"^SIP/2.0 ([^ ]*)")
 #rx_invalid = re.compile("^192\.168")
 #rx_invalid2 = re.compile("^10\.")
 #rx_cseq = re.compile("^CSeq:")
 #rx_callid = re.compile("Call-ID: (.*)$")
 #rx_rr = re.compile("^Record-Route:")
-rx_request_uri = re.compile("^([^ ]*) sip:([^ ]*?)(;.*)* SIP/2.0")
-rx_route = re.compile("^Route: (.*)")
+rx_request_uri = re.compile(r"^([^ ]*) sip:([^ ]*) SIP/2.0")
+rx_route = re.compile(r"^Route:")
 rx_record_route = re.compile("^Record-Route:")
-rx_contentlength = re.compile("^Content-Length:")
-rx_ccontentlength = re.compile("^l:")
+rx_contentlength = re.compile(r"^Content-Length:")
+rx_ccontentlength = re.compile(r"^l:")
 rx_contenttype = re.compile("^Content-Type:")
-rx_via = re.compile("^Via:")
-rx_cvia = re.compile("^v:")
-rx_branch = re.compile(";branch=([^;]*)")
-rx_rport = re.compile(";rport$|;rport;")
-rx_contact_expires = re.compile("expires=([^;$]*)")
-rx_expires = re.compile("^Expires: (.*)$")
+rx_via = re.compile(r"^Via:")
+rx_cvia = re.compile(r"^v:")
+rx_branch = re.compile(r";branch=([^;]*)")
+rx_rport = re.compile(r";rport$|;rport;")
+rx_contact_expires = re.compile(r"expires=([^;]*)")
+rx_expires = re.compile(r"^Expires: (.*)$")
 rx_authorization = re.compile(r"^Authorization: +\S{6} (.*)")
 rx_proxy_authorization = re.compile(r"^Proxy-Authorization: +\S{6} (.*)")
 rx_kv= re.compile("([^=]*)=(.*)")
 
 local_tag = '123456-SPLiT'
 
-def hexdump( chars, sep, width ):
+def hexdump(chars, sep, width):
     """Dump chars in hex and ascii format
     """
     data = []
     while chars:
         line = chars[:width]
         chars = chars[width:]
-        line = line.ljust( width, '\000' )
-        data.append("%s%s%s" % ( sep.join( "%02x" % ord(c) for c in line ),sep, quotechars( line )))
+        line = line.ljust(width, '\000')
+        data.append(f"{sep.join(f'{ord(c):02x}' for c in line)}{sep}{quotechars(line)}")
     return data
 
-def quotechars( chars ):
-	return ''.join( ['.', c][c.isalnum()] for c in chars )
+def quotechars(chars):
+    return ''.join(['.', c][c.isalnum()] for c in chars)
 
 def generateNonce(n, str="0123456789abcdef"):
     nonce = ""
@@ -104,8 +104,7 @@ def generateNonce(n, str="0123456789abcdef"):
     
 class SipTracedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
     def __init__(self, server_address, RequestHandlerClass, sip_logger, main_logger, options):
-        self.allow_reuse_address = True
-        socketserver.UDPServer.__init__(self, server_address, RequestHandlerClass)
+        super().__init__(server_address, RequestHandlerClass)
         self.sip_logger = sip_logger
         self.main_logger = main_logger
         self.options = options
@@ -320,9 +319,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
             if line == "":
                 break
         data.append("")
-        text = string.join(data,"\r\n")
+        text = "\r\n".join(data)
         self.sendTo(text, self.client_address)
-        self.server.sip_logger.debug("Send to: %s:%d (%d bytes):\n\n%s" % (self.client_address[0], self.client_address[1], len(text),text))
+        self.server.sip_logger.debug(f"Send to: {self.client_address[0]}:{self.client_address[1]} ({len(text)} bytes):\n\n{text}")
     
     def sendTo(self, data, client_address, socket=None):
         self.server.main_logger.debug("SIP: Sending to %s:%d" % (client_address))
@@ -583,10 +582,10 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 data = self.removeRouteHeader()
                 if not self.server.options.sip_no_record_route:
                     data.insert(1, self.server.recordroute)
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data)
                 self.sendTo(text , claddr, socket)
                 self.server.main_logger.debug("SIP: Forwarding INVITE to %s:%d" % (claddr[0], claddr[1]))
-                self.server.sip_logger.debug("Send to: %s:%d (%d bytes):\n\n%s" % (claddr[0], claddr[1], len(text),text))
+                self.server.sip_logger.debug(f"Send to: {claddr[0]}:{claddr[1]} ({len(text)} bytes):\n\n{text}")
             else:
                 self.sendResponse("404 Not Found")
         else:
@@ -616,9 +615,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 data = self.removeRouteHeader()
                 if not self.server.options.sip_no_record_route:
                     data.insert(1, self.server.recordroute)
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data)
                 self.sendTo(text, claddr, socket)
-                self.server.sip_logger.debug("SIP: Send to: %s:%d (%d bytes):\n\n%s" % (claddr[0], claddr[1], len(text),text))
+                self.server.sip_logger.debug(f"Send to: {claddr[0]}:{claddr[1]} ({len(text)} bytes):\n\n{text}")
             else:
                 self.server.main_logger.error("SIP: ACK not proxied: destination not found")
 
@@ -643,9 +642,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 if not self.server.options.sip_no_record_route:
                     #insert Record-Route
                     data.insert(1, self.server.recordroute)
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data)
                 self.sendTo(text, claddr, socket)
-                self.server.sip_logger.debug("Send to: %s:%d (%d bytes):\n\n%s" % (claddr[0], claddr[1], len(text),text))
+                self.server.sip_logger.debug(f"Send to: {claddr[0]}:{claddr[1]} ({len(text)} bytes):\n\n{text}")
             else:
                 self.sendResponse("404 Not found")
         else:
@@ -662,9 +661,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 data = self.removeTopVia()
                 data = self.removeRouteHeader(data)
                 self.server.main_logger.debug("SIP: Code received: %s" % self.data[0])
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data)
                 self.sendTo(text,claddr, socket)
-                self.server.sip_logger.debug("Send to: %s:%d (%d bytes):\n\n%s" % (claddr[0], claddr[1], len(text),text))
+                self.server.sip_logger.debug(f"Send to: {claddr[0]}:{claddr[1]} ({len(text)} bytes):\n\n{text}")
                 
     def processRequest(self):
         if len(self.data) > 0:

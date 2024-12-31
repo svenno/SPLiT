@@ -22,11 +22,11 @@ import errno
 import platform
 
 # Regexp matching SIP messages:
-rx_subscribe = re.compile("^SUBSCRIBE")
-rx_uri_with_params = re.compile("sip:([^@]*)@([^;>$]*)")
-rx_uri = re.compile("sip:([^@]*)@([^>$]*)")
-rx_addr = re.compile("sip:([^ ;>$]*)")
-rx_code = re.compile("^SIP/2.0 ([^ ]*)")
+rx_subscribe = re.compile(r"^SUBSCRIBE")
+rx_uri_with_params = re.compile(r"sip:([^@]*)@([^;>$]*)")
+rx_uri = re.compile(r"sip:([^@]*)@([^>$]*)")
+rx_addr = re.compile(r"sip:([^ ;>$]*)")
+rx_code = re.compile(r"^SIP/2.0 ([^ ]*)")
 rx_request_uri = re.compile("^([^ ]*) sip:([^ ]*?)(;.*)* SIP/2.0")
 rx_event = re.compile("^Event:")
 rx_via = re.compile("^Via:")
@@ -38,19 +38,19 @@ rx_cvia = re.compile("^v:")
 rx_contact = re.compile("^Contact:")
 rx_ccontact = re.compile("^m:")
 
-def hexdump( chars, sep, width ):
+def hexdump(chars, sep, width):
     """Dump chars in hex and ascii format
     """
     data = []
     while chars:
         line = chars[:width]
         chars = chars[width:]
-        line = line.ljust( width, '\000' )
-        data.append("%s%s%s" % ( sep.join( "%02x" % ord(c) for c in line ),sep, quotechars( line )))
+        line = line.ljust(width, b'\000')
+        data.append(f"{sep.join(f'{c:02x}' for c in line)}{sep}{quotechars(line)}")
     return data
 
-def quotechars( chars ):
-	return ''.join( ['.', c][c.isalnum()] for c in chars )
+def quotechars(chars):
+    return ''.join(['.' if not chr(c).isalnum() else chr(c) for c in chars])
 
 class pnp_phone(object):
     """Basic representation of a snom phone."""
@@ -63,11 +63,11 @@ class pnp_phone(object):
         self.model = mod
         self.fw_version = fw
         self.subscribe = subs
-        self.uri = "sip:%s:%s" % (self.ip_addr, self.sip_port)
+        self.uri = f"sip:{self.ip_addr}:{self.sip_port}"
 
     def __repr__(self):
         """Gets a string representation of the phone"""
-        return "%s (MAC: %s) running Firmware %s found at IP %s" % (self.model, self.__macrepr(self.mac_addr), self.fw_version, self.ip_addr)
+        return f"{self.model} (MAC: {self.__macrepr(self.mac_addr)}) running Firmware {self.fw_version} found at IP {self.ip_addr}"
 
     def __macrepr(self, m):
         """ Normalize a MAC address to lower case unix style """  
