@@ -1,6 +1,6 @@
 # SPLiT SIP Phone Learning Tool
 
-[![Tests](https://github.com/svenno/SPLiT/actions/workflows/tests.yml/badge.svg)](https://github.com/svenno/SPLiT/actions/workflows/tests.yml)
+[![Tests](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
 
 SPLiT is a **very simple**, **not performant**, **insecure**, and **non fully RFC compliant** SIP stateless proxy, DHCP, TFTP and HTTP server.
 
@@ -24,7 +24,7 @@ SPLiT is developed with hackability in mind, the main target is to reproduce SIP
 ## Installation
 
 - Only Python 3.x is supported
-- Download the last release archive file from [https://github.com/pbertera/SPLiT/releases](https://github.com/pbertera/SPLiT/releases) and save in your computer
+- Download the last release archive file from [releases](../../releases) and save in your computer
 - Run the script from a terminal (or a cmd.exe prompt in Windows)
 
 ## Testing
