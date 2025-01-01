@@ -10,10 +10,9 @@ cat << EOF>Dockerfile
 FROM alpine:latest
 
 ENV VER ${version}
-ENV SPLIT_SRC https://github.com/pbertera/SPLiT/archive/\${VER}.tar.gz
+ENV SPLIT_SRC https://github.com/${GITHUB_REPOSITORY:-pbertera/SPLiT}/archive/\${VER}.tar.gz
 
-RUN apk update && apk add \
-        python bash curl
+RUN apk update && apk add python bash curl screen netcat-traditional
 
 RUN mkdir /opt && cd /opt && curl -L -k \${SPLIT_SRC} | tar xzvf -
 WORKDIR /opt/SPLiT-\${VER}

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SIPP=/Users/pietro/SupportTools/SIPp/sipp
+SIPP=sipp
 SCREEN=screen
 NETCAT=nc
 
