@@ -25,7 +25,7 @@ from tkinter.scrolledtext import ScrolledText
 import utils
 import proxy
 import pnp
-import httpserver
+from pypxe import httpserver
 
 from pypxe import tftp
 from pypxe import dhcp

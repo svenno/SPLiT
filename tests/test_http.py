@@ -1,5 +1,5 @@
 import unittest
-from httpserver import HTTPD
+from pypxe.httpserver import HTTPD
 
 class TestHTTP(unittest.TestCase):
     def setUp(self):
