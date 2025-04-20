@@ -22,11 +22,11 @@ UAC2_CTRL_IP="127.0.0.1"
 
 REPORT_FILE="../report_002.txt"
 DUMP_EXT=dump
-init_report "Testsuite 002: Registraion and basic call with Contact params"
+init_report "Testsuite 002: Registration and basic call with Contact params"
 
 # UAC1 and UAC2 registers using custom params in Contact Header.
 # UAC1 runs a uas SIPp instance, this instance Parse the request URI
-# Each URI components are insterted in X-Reflected-* headers in the 200 OK
+# Each URI components are inserted in X-Reflected-* headers in the 200 OK
 # UAC2 saves the value of X-Reflected-* headers in dump files.
 
 testnum=0
@@ -35,7 +35,6 @@ testnum=0
 testnum=$(($testnum + 1 ))
 test_command="$SIPP -set params custom=xyz$UAC1_USER -sf 02-uac-register.xml -ap protected -s $UAC1_USER -i $UAC1_IP -p $UAC1_PORT -m 1 -default_behaviors -bye $PROXY_ADDR:$PROXY_PORT"
 run_test $testnum "$UAC1_USER Registration" "$test_command"
-
 
 # REGISTER UAC2
 testnum=$(($testnum + 1 ))
@@ -66,7 +65,6 @@ run_test $testnum "Check param values" "$test_command"
 
 # clean dump files
 rm -f *dump
-
 kill_screen UAS
 
 # DEREGISTER  UAC1

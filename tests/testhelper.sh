@@ -28,7 +28,7 @@ run_in_screen(){
     shift
     local cmd=$@
 
-    log Spawnig a new screen session \"$session\": $cmd
+    log Spawning a new screen session \"$session\": $cmd
     $SCREEN -dmS $session $cmd
 }
 
