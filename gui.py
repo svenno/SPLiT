@@ -25,7 +25,7 @@ from tkinter.scrolledtext import ScrolledText
 import utils
 import proxy
 import pnp
-import http
+import httpserver
 
 from pypxe import tftp
 from pypxe import dhcp
@@ -376,7 +376,7 @@ class MainFrame:
         
         self.main_logger.debug("HTTP Server port: %s", self.options.http_port)
         try:
-            self.http_server = http.HTTPD(ip = self.options.ip_address, mode_debug = self.options.debug, port = self.options.http_port, logger = self.main_logger, work_directory = self.options.http_root)
+            self.http_server = httpserver.HTTPD(ip = self.options.ip_address, mode_debug = self.options.debug, port = self.options.http_port, logger = self.main_logger, work_directory = self.options.http_root)
             self.http_server_thread = threading.Thread(name='http', target=self.http_server.listen)
             self.http_server_thread.daemon = True
             self.http_server_thread.start()           
