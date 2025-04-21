@@ -53,17 +53,11 @@ rx_contentdisposition = re.compile("^Content-Disposition:")
 rx_supported = re.compile("^Supported:")
 rx_sessionexpires = re.compile("^Session-Expires:")
 rx_maxforward = re.compile("^Max-Forwards:")
-rx_uri_with_params = re.compile("sip:([^@]*)@([^;>$]*)(;[^>$]*)?")
+rx_uri_with_params = re.compile("sip:([^@]*)@([^;>$]*)")
 rx_uri = re.compile(r"sip:([^@]*)@([^;>]*)")
 rx_addr = re.compile(r"sip:([^@]*)@([^;>]*)")
-#rx_addrport = re.compile("([^:]*):(.*)")
 rx_code = re.compile(r"^SIP/2.0 ([^ ]*)")
-#rx_invalid = re.compile("^192\.168")
-#rx_invalid2 = re.compile("^10\.")
-#rx_cseq = re.compile("^CSeq:")
-#rx_callid = re.compile("Call-ID: (.*)$")
-#rx_rr = re.compile("^Record-Route:")
-rx_request_uri = re.compile(r"^([^ ]*) sip:([^ ;]*)(;[^ ]*)? SIP/2.0")
+rx_request_uri = re.compile(r"^([^ ]*) sip:([^ ]*) SIP/2.0")
 rx_route = re.compile(r"^Route:")
 rx_record_route = re.compile("^Record-Route:")
 rx_contentlength = re.compile(r"^Content-Length:")
@@ -163,31 +157,13 @@ class UDPHandler(socketserver.BaseRequestHandler):
         return False
 
     def changeRequestUri(self):
-        # change request uri
+        # Vereinfachte Version ohne Parameter-Handling
         md = rx_request_uri.search(self.data[0])
         if md:
             method = md.group(1)
             uri = md.group(2)
-            params = md.group(3) or ""
             if uri in self.server.registrar:
-                # Find Contact header parameters
-                contact_params = ""
-                for line in self.data:
-                    if rx_contact.search(line) or rx_ccontact.search(line):
-                        # Extract parameters from Contact header
-                        md_contact = re.search(r"<sip:[^>]*;([^>]*)>", line)
-                        if md_contact and md_contact.group(1):
-                            contact_params = ";" + md_contact.group(1)
-                            break
-                
-                # Add Contact parameters to the Request-URI
-                # If there are no parameters in the Request-URI, use the Contact parameters
-                if not params and contact_params:
-                    params = contact_params
-                # If there are parameters in both, combine them
-                elif params and contact_params:
-                    params = params + contact_params
-                uri = "sip:%s%s" % (self.server.registrar[uri][0], params)
+                uri = "sip:%s" % self.server.registrar[uri][0]
                 self.server.main_logger.debug("SIP: changeRequestUri: %s -> %s" % (self.data[0], "%s %s SIP/2.0" % (method,uri)))
                 self.data[0] = "%s %s SIP/2.0" % (method,uri)
             else:
@@ -287,19 +263,13 @@ class UDPHandler(socketserver.BaseRequestHandler):
         addrport, socket, client_addr, validity = self.server.registrar[uri]
         return (socket,client_addr)
         
-    def getDestination(self, with_params=True):
+    def getDestination(self, with_params=False):
         destination = ""
         for line in self.data:
             if rx_to.search(line) or rx_cto.search(line):
-                if with_params:
-                    md = rx_uri_with_params.search(line)
-                else:
-                    md = rx_uri.search(line)
+                md = rx_uri.search(line)
                 if md:
-                    if with_params and md.group(3):
-                        destination = "%s@%s%s" %(md.group(1), md.group(2), md.group(3))
-                    else:
-                        destination = "%s@%s" %(md.group(1), md.group(2))
+                    destination = "%s@%s" %(md.group(1), md.group(2))
                 break
         return destination
                 
@@ -307,12 +277,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
         origin = ""
         for line in self.data:
             if rx_from.search(line) or rx_cfrom.search(line):
-                md = rx_uri_with_params.search(line)
+                md = rx_uri.search(line)
                 if md:
-                    if md.group(3):
-                        origin = "%s@%s%s" %(md.group(1), md.group(2), md.group(3))
-                    else:
-                        origin = "%s@%s" %(md.group(1), md.group(2))
+                    origin = "%s@%s" %(md.group(1), md.group(2))
                 break
         return origin
         
