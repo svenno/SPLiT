@@ -157,7 +157,6 @@ class UDPHandler(socketserver.BaseRequestHandler):
         return False
 
     def changeRequestUri(self):
-        # Vereinfachte Version ohne Parameter-Handling
         md = rx_request_uri.search(self.data[0])
         if md:
             method = md.group(1)
@@ -263,7 +262,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         addrport, socket, client_addr, validity = self.server.registrar[uri]
         return (socket,client_addr)
         
-    def getDestination(self, with_params=False):
+    def getDestination(self):
         destination = ""
         for line in self.data:
             if rx_to.search(line) or rx_cto.search(line):
@@ -575,7 +574,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
             self.server.main_logger.debug("SIP: Invite: Origin not found: %s" % origin)
             self.sendResponse("400 Bad Request")
             return
-        destination = self.getDestination(with_params=True)
+        destination = self.getDestination()
         if len(destination) > 0:
             self.server.main_logger.info("SIP: Invite: destination %s" % destination)
             if destination in self.server.registrar and self.checkValidity(destination):

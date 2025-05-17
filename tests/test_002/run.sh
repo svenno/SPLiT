@@ -22,7 +22,7 @@ UAC2_CTRL_IP="127.0.0.1"
 
 REPORT_FILE="../report_002.txt"
 DUMP_EXT=dump
-init_report "Testsuite 002: Registration and basic call with Contact params"
+init_report "Testsuite 002: Registration and basic call with Contact params - $(date '+%Y-%m-%d %H:%M:%S')"
 
 # UAC1 and UAC2 registers using custom params in Contact Header.
 # UAC1 runs a uas SIPp instance, this instance Parse the request URI

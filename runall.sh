@@ -8,11 +8,11 @@ mkdir -p "$TEST_ARTIFACTS_DIR"
 cleanup() {
     echo "Cleaning up old processes..."
     # Kill any Python processes running SPLiT
-    pkill -9 -f "python3 SPLiT.py" 2>/dev/null
+    pkill -9 -f "python3 SPLiT.py" >/dev/null 2>/dev/null
     # Kill any SIPp processes
-    pkill -9 -f "sipp" 2>/dev/null
+    pkill -9 -f "sipp" >/dev/null 2>/dev/null
     # Kill any processes using port 5060
-    lsof -ti :5060 | xargs kill -9 2>/dev/null
+    lsof -ti :5060 2>/dev/null | xargs -r kill -9 >/dev/null 2>/dev/null
     # Wait a moment to ensure processes are fully terminated
     sleep 2
 }
@@ -29,15 +29,6 @@ check_port() {
     fi
 }
 
-# Function to preserve test artifacts
-preserve_artifacts() {
-    echo "Preserving test artifacts in $TEST_ARTIFACTS_DIR"
-    if [ -d "tests/test_002" ]; then
-        cp tests/test_002/*.dump "$TEST_ARTIFACTS_DIR/" 2>/dev/null
-        cp tests/test_002/report_002.txt "$TEST_ARTIFACTS_DIR/" 2>/dev/null
-    fi
-}
-
 # Main execution
 echo "Starting test suite..."
 
@@ -48,7 +39,10 @@ check_port
 # Start the proxy server
 echo "Starting proxy server..."
 python3 SPLiT.py -d -t -l log.txt&
+
+# Store the process ID and remove it from shell job control to prevent kill messages
 PROXY_PID=$!
+disown $PROXY_PID
 
 # Wait for proxy to start
 sleep 2
@@ -62,27 +56,21 @@ fi
 
 # Run the tests
 echo "Running tests..."
-# exit 1
 cd tests/test_001 && ./run.sh
-TEST_RESULT=$?
+TEST_RESULT_1=$?
 
 cd ../test_002 && ./run.sh
-TEST_RESULT=$?
+TEST_RESULT_2=$?
 
-# Preserve test artifacts before cleanup
-# preserve_artifacts
+# Combine test results - if any test fails, the final result should be failure
+TEST_RESULT=$((TEST_RESULT_1 || TEST_RESULT_2))
 
 # Clean up after tests
 echo "Cleaning up after tests..."
 cleanup
 
-# Show test artifacts if they exist
-if [ -n "$(ls -A $TEST_ARTIFACTS_DIR/*.dump 2>/dev/null)" ]; then
-    echo "Test artifacts preserved in $TEST_ARTIFACTS_DIR:"
-    ls -l "$TEST_ARTIFACTS_DIR"
-    echo "Contents of dump files:"
-    cat "$TEST_ARTIFACTS_DIR"/*.dump
-fi
+[ $TEST_RESULT_1 -eq 0 ] && echo "Test 001: SUCCESS" || echo "Test 001: FAILED"
+[ $TEST_RESULT_2 -eq 0 ] && echo "Test 002: SUCCESS" || echo "Test 002: FAILED"
 
 # Exit with test result
 exit $TEST_RESULT 

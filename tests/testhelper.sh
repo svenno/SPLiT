@@ -63,10 +63,14 @@ init_report(){
     # 
     # $REPORT_FILE var is needed
 
-    echo "$@" >> $REPORT_FILE
-    echo >> $REPORT_FILE
-    echo >> $REPORT_FILE
-    log $@
+    # Ensure the report file is empty before writing
+    > "$REPORT_FILE"
+    
+    # Write the title with timestamp
+    echo "$@" >> "$REPORT_FILE"
+    echo >> "$REPORT_FILE"
+    echo >> "$REPORT_FILE"
+    log "$@"
     log
 }
 
