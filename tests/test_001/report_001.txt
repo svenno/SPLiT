@@ -1,0 +1,23 @@
+Testsuite 001: Registraion and basic call - 2025-05-18 01:39:52
+
+
+TEST 1: 100 Registration
+    TEST_COMMAND: sipp -sf 01-uac-register.xml -ap protected -s 100 -i 127.0.0.1 -p 5061 -m 1 -default_behaviors -bye 127.0.0.1:5060
+    TEST 1: OK
+
+TEST 2: 200 Registration
+    TEST_COMMAND: sipp -sf 01-uac-register.xml -ap protected -s 200 -i 127.0.0.1 -p 5062 -m 1 -default_behaviors -bye 127.0.0.1:5060
+    TEST 2: OK
+
+TEST 3: SIPp scenario 01-uac.xml
+    TEST_COMMAND: sipp -set ua 200 -sf 01-uac.xml -i 127.0.0.1 -p 5062 -s 100 -m 1 -default_behaviors -bye 127.0.0.1:5060
+    TEST 3: OK
+
+TEST 4: 100 De-Registration
+    TEST_COMMAND: sipp -sf 01-uac-deregister.xml -ap protected -s 100 -i 127.0.0.1 -p 5061 -m 1 -default_behaviors -bye 127.0.0.1:5060
+    TEST 4: OK
+
+TEST 5: 200 De-Registration
+    TEST_COMMAND: sipp -sf 01-uac-deregister.xml -ap protected -s 200 -i 127.0.0.1 -p 5062 -m 1 -default_behaviors -bye 127.0.0.1:5060
+    TEST 5: OK
+
