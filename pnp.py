@@ -22,21 +22,29 @@ import errno
 import platform
 
 # Regexp matching SIP messages:
+
+# Basic SIP message type detection
 rx_subscribe = re.compile(r"^SUBSCRIBE")
+rx_code = re.compile(r"^SIP/2.0 ([^ ]*)")
+rx_request_uri = re.compile(r"^([^ ]*) sip:([^ ]*?)(;.*)* SIP/2.0")
+
+# SIP URI parsing patterns
 rx_uri_with_params = re.compile(r"sip:([^@]*)@([^;>$]*)")
 rx_uri = re.compile(r"sip:([^@]*)@([^>$]*)")
 rx_addr = re.compile(r"sip:([^ ;>$]*)")
-rx_code = re.compile(r"^SIP/2.0 ([^ ]*)")
-rx_request_uri = re.compile("^([^ ]*) sip:([^ ]*?)(;.*)* SIP/2.0")
-rx_event = re.compile("^Event:")
-rx_via = re.compile("^Via:")
-rx_to = re.compile("^To:")
-rx_from = re.compile("^From:")
-rx_call_id = re.compile("^Call-ID:")
-rx_cseq = re.compile("^CSeq:")
-rx_cvia = re.compile("^v:")
-rx_contact = re.compile("^Contact:")
-rx_ccontact = re.compile("^m:")
+
+# Standard SIP header detection
+rx_from = re.compile(r"^From:")
+rx_to = re.compile(r"^To:")
+rx_call_id = re.compile(r"^Call-ID:")
+rx_cseq = re.compile(r"^CSeq:")
+rx_via = re.compile(r"^Via:")
+rx_contact = re.compile(r"^Contact:")
+rx_event = re.compile(r"^Event:")
+
+# Compact form SIP header detection
+rx_cvia = re.compile(r"^v:")
+rx_ccontact = re.compile(r"^m:")
 
 def hexdump(chars, sep, width):
     """Dump chars in hex and ascii format
