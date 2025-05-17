@@ -62,15 +62,25 @@ TEST_RESULT_1=$?
 cd ../test_002 && ./run.sh
 TEST_RESULT_2=$?
 
+# Run Python unit tests
+echo "Running Python unit tests..."
+cd ..  # Go back to tests directory
+PYTHONPATH=$PYTHONPATH:.. python3 -m unittest test_dhcp.py test_http.py test_tftp.py
+TEST_RESULT_3=$?
+
 # Combine test results - if any test fails, the final result should be failure
-TEST_RESULT=$((TEST_RESULT_1 || TEST_RESULT_2))
+TEST_RESULT=$((TEST_RESULT_1 || TEST_RESULT_2 || TEST_RESULT_3))
 
 # Clean up after tests
 echo "Cleaning up after tests..."
 cleanup
 
+# Go back to the root directory
+cd ..
+
 [ $TEST_RESULT_1 -eq 0 ] && echo "Test 001: SUCCESS" || echo "Test 001: FAILED"
 [ $TEST_RESULT_2 -eq 0 ] && echo "Test 002: SUCCESS" || echo "Test 002: FAILED"
+[ $TEST_RESULT_3 -eq 0 ] && echo "Python Tests: SUCCESS" || echo "Python Tests: FAILED"
 
 # Exit with test result
 exit $TEST_RESULT 

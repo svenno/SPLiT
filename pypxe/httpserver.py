@@ -62,10 +62,8 @@ class HTTPD():
         self.work_directory = serverSettings.get('work_directory', '.')
         self.mode_debug = serverSettings.get('mode_debug', False) #debug mode
         self.logger =  serverSettings.get('logger', None)
+        self.start_server = serverSettings.get('start_server', True)
 
-        handler = MySimpleHTTPRequestHandler
-        self.server = HTTPDThreadedServer((self.ip, self.port), handler, self.logger, self.work_directory)
- 
         # setup logger
         if self.logger == None:
             self.logger = logging.getLogger("HTTP")
@@ -77,13 +75,25 @@ class HTTPD():
         if self.mode_debug:
             self.logger.setLevel(logging.DEBUG)
         
-        self.logger.info("NOTICE: HTTP server starting on %s:%d" % (self.ip, self.port))
+        # Only create and start server if start_server is True
+        if self.start_server:
+            handler = MySimpleHTTPRequestHandler
+            self.server = HTTPDThreadedServer((self.ip, self.port), handler, self.logger, self.work_directory)
+            self.logger.info("NOTICE: HTTP server starting on %s:%d" % (self.ip, self.port))
+        else:
+            self.server = None
 
     def listen(self):
+        if self.server is None:
+            handler = MySimpleHTTPRequestHandler
+            self.server = HTTPDThreadedServer((self.ip, self.port), handler, self.logger, self.work_directory)
+            self.logger.info("NOTICE: HTTP server starting on %s:%d" % (self.ip, self.port))
         self.server.serve_forever()
 
     def shutdown(self):
-        self.server.shutdown()
+        if self.server is not None:
+            self.server.shutdown()
+            self.server = None
 
 if __name__ == '__main__':
     import sys

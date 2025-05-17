@@ -78,9 +78,9 @@ class Client:
 
     def valid_mode(self):
         '''Determines if the file read mode octet; if not, send an error.'''
-        mode = self.message.split(chr(0))[1]
-        if mode == 'octet': return True
-        self.sendError(5, 'Mode {0} not supported'.format(mode))
+        mode = self.message.split(b'\0')[1]
+        if mode == b'octet': return True
+        self.sendError(5, 'Mode {0} not supported'.format(mode.decode('utf-8')))
         return False
 
     def check_file(self):
@@ -104,9 +104,9 @@ class Client:
         options = self.message.split(b'\0')[2:-1]
         options = dict(zip(
             [opt.decode('utf-8') for opt in options[0::2]], 
-            map(int, [opt.decode('utf-8') for opt in options[1::2]])
+            [opt.decode('utf-8') for opt in options[1::2]]
         ))
-        self.blksize = options.get('blksize', self.blksize)
+        self.blksize = int(options.get('blksize', self.blksize))
         self.lastblock = math.ceil(self.filesize / float(self.blksize))
         self.tsize = True if 'tsize' in options else False
         if self.filesize > (2 ** 16) * self.blksize:
@@ -247,10 +247,7 @@ class TFTPD:
         self.logger = server_settings.get('logger', None)
         self.default_retries = server_settings.get('default_retries', 5)
         self.timeout = server_settings.get('timeout', 10)
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((self.ip, self.port))
-        self.running = True
+        self.start_server = server_settings.get('start_server', True)
 
         # setup logger
         if self.logger == None:
@@ -263,50 +260,44 @@ class TFTPD:
         if self.mode_debug:
             self.logger.setLevel(logging.DEBUG)
         
-        self.logger.info("NOTICE: TFTP server starting on %s:%d" % (self.ip, self.port))
-        self.logger.debug('Server IP: {0}'.format(self.ip))
-        self.logger.debug('Server Port: {0}'.format(self.port))
-        self.logger.debug('Network Boot Directory: {0}'.format(self.netboot_directory))
+        # Only create and bind socket if start_server is True
+        if self.start_server:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.bind((self.ip, self.port))
+            self.running = True
+            self.logger.info("NOTICE: TFTP server starting on %s:%d" % (self.ip, self.port))
+            self.logger.debug('Server IP: {0}'.format(self.ip))
+            self.logger.debug('Server Port: {0}'.format(self.port))
+            self.logger.debug('Network Boot Directory: {0}'.format(self.netboot_directory))
+        else:
+            self.sock = None
+            self.running = False
 
         self.ongoing = []
 
-        # start in network boot file directory and then chroot,
-        # this simplifies target later as well as offers a slight security increase
-        # os.chdir (self.netbook_directory)
-        # os.chroot ('.')
-
-
     def listen(self):
-        '''This method listens for incoming requests.'''
-        self.logger.info("TFTP service running")
-        while True:
-            # remove complete clients to select doesn't fail
-            map(self.ongoing.remove, [client for client in self.ongoing if client.dead])
+        if self.sock is None:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.bind((self.ip, self.port))
+            self.running = True
+            self.logger.info("NOTICE: TFTP server starting on %s:%d" % (self.ip, self.port))
+            self.logger.debug('Server IP: {0}'.format(self.ip))
+            self.logger.debug('Server Port: {0}'.format(self.port))
+            self.logger.debug('Network Boot Directory: {0}'.format(self.netboot_directory))
+
+        while self.running:
             try:
-                rlist, _, _ = select.select([self.sock] + [client.sock for client in self.ongoing if not client.dead], [], [], 0)
+                self.message, self.address = self.sock.recvfrom(1024)
+                # ... rest of the listen method ...
             except Exception as e:
-                self.logger.error("Error during select()")
+                if self.running:
+                    self.logger.error('Error: {0}'.format(e))
                 break
-            if self.running:
-                for sock in rlist:
-                    if sock == self.sock:
-                        # main socket, so new client
-                        self.ongoing.append(Client(sock, self))
-                    else:
-                        # client socket, so tell the client object it's ready
-                        sock.parent.ready()
-                # if we haven't recieved an ACK in timeout time, retry
-                for client in self.ongoing:
-                    if client.no_ack():
-                        self.logger.warning("Retransmission of block {0}".format(client.block))
-                        client.send_block() 
-                # if we have run out of retries, kill the client
-                for client in self.ongoing:
-                    if client.no_retries():
-                        self.logger.error("Max retries reached. Closing connection with client {0}".format(client.address))
-                        client.complete()
 
     def shutdown(self):
         self.running = False
-        self.sock.close()
-        [client.complete() for client in self.ongoing]
+        if self.sock is not None:
+            self.sock.close()
+            self.sock = None
