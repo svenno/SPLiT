@@ -20,7 +20,7 @@ UAC2_USER=200
 UAC2_CTRL_PORT=8882
 UAC2_CTRL_IP="127.0.0.1"
 
-REPORT_FILE="./report_002.txt"
+REPORT_FILE="./testreport_02.txt"
 DUMP_EXT=dump
 init_report "Testsuite 002: Registration and basic call with Contact params - $(date '+%Y-%m-%d %H:%M:%S')"
 

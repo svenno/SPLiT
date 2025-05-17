@@ -19,7 +19,7 @@ UAC2_USER=200
 UAC2_CTRL_PORT=8882
 UAC2_CTRL_IP="127.0.0.1"
 
-REPORT_FILE="./report_001.txt"
+REPORT_FILE="./testreport_01.txt"
 
 init_report "Testsuite 001: Registraion and basic call - $(date '+%Y-%m-%d %H:%M:%S')"
 
